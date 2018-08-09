@@ -26,4 +26,4 @@ RUN pip install -r requirements.txt
 COPY templates/ /app/templates/
 COPY *.py /app/
 
-CMD gunicorn --access-logfile - --error-logfile - -w 4 -b 0.0.0.0:8080 app:app
+CMD ["gunicorn", "--access-logfile", "-", "--error-logfile", "-", "-w", "4", "-b", "0.0.0.0:8080", "app:app"]
