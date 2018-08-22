@@ -1,5 +1,6 @@
+account.json
 __pycache__/
-terraform.tfvars
 .terraform/
-terraform/terraform.tfstate
-terraform/terraform.tfstate.backup
+terraform.tfvars
+.terraform.tfstate*
+terraform.tfstate*

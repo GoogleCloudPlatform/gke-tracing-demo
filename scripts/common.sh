@@ -20,40 +20,12 @@
 # "-                                                       -"
 # "---------------------------------------------------------"
 
-APP_NAME="tracing-demo"
-CLUSTER_NAME="tracing-demo-space"
-GKE_VERSION=$(gcloud container get-server-config \
-  --format="value(validMasterVersions[0])")
-
 # gcloud and kubectl are required for this POC
 command -v gcloud >/dev/null 2>&1 || { \
  echo >&2 "I require gcloud but it's not installed.  Aborting."; exit 1; }
 
 command -v kubectl >/dev/null 2>&1 || { \
  echo >&2 "I require kubectl but it's not installed.  Aborting."; exit 1; }
-
-usage() { echo "Usage: $0 [-c <cluster name>]" 1>&2; exit 1; }
-
-# parse -c flag for the CLUSTER_NAME using getopts
-while getopts ":c:" opt; do
-  case ${opt} in
-    c)
-      CLUSTER_NAME=$OPTARG
-      ;;
-    \?)
-      echo "Invalid flag on command line: $OPTARG" 1>&2
-      ;;
-    *)
-      usage
-      ;;
-  esac
-done
-shift $((OPTIND -1))
-
-# If user did not pass in -c flag then fail
-if [ -z "${CLUSTER_NAME}" ]; then
-    usage
-fi
 
 # Get the default zone and use it or die
 ZONE=$(gcloud config get-value compute/zone)

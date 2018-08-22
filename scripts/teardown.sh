@@ -30,5 +30,5 @@ ROOT=$(dirname "${BASH_SOURCE[0]}")/..
 source "$ROOT"/scripts/common.sh
 
 # Tear down Terraform-managed resources and remove generated tfvars
-(cd "$ROOT"/terraform; terraform destroy -input=false -auto-approve)
+cd "$ROOT"/terraform || exit; terraform destroy -input=false -auto-approve
 rm -f "$ROOT"/terraform/terraform.tfvars
