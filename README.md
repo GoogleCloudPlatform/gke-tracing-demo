@@ -3,10 +3,10 @@
 * [Introduction](#introduction)
 * [Architecture](#architecture)
 * [Prerequisites](#prerequisites)
-  * [Enable GCP APIs](#enable-gcp-apis)
   * [Install Cloud SDK](#install-cloud-sdk)
   * [Install Terraform](#install-terraform)
   * [Configure Authentication](#configure-authentication)
+  * [Enable GCP APIs](#enable-gcp-apis)
 * [Deployment](#deployment)
   * [Introduction to Terraform](#introduction-to-terraform)
   * [Running Terraform](#running-terraform)
@@ -81,23 +81,8 @@ available in the Stackdriver Trace Console.
 ## Prerequisites
 
 The steps described in this document require the installation of several tools
-and the proper configuration of authentication to allow them to access your
+and the proper configuration of authentication and APIs to allow access your
 GCP resources.
-
-### Enable GCP APIs
-
-The following APIs need to be enabled:
-* Kubernetes Engine API
-* Stackdriver Trace API
-
-A script is provided in the /scripts folder named **enable-apis.sh** that will
-enable these three API's.  Follow these steps to execute the script:
-1. In the GCP console, change to the project you want to enable the API's for.
-2. Click on the **Activate Cloud Shell Console** Visit the **APIs & Services**
-   section of the GCP Console.
-3. Upload the **enable-apis.sh** script in the **Cloud Shell** window.
-4. Execute the script.
-
 
 ### Install Cloud SDK
 
@@ -129,6 +114,18 @@ In order to interact with GCP from your system you will need to authenticate:
 
 ```console
 gcloud auth application-default login
+```
+### Enable GCP APIs
+
+The following APIs need to be enabled:
+* Kubernetes Engine API
+* Stackdriver Trace API
+
+The following commands will enable these APIs:
+
+```console
+gcloud services enable container.googleapis.com
+gcloud services enable cloudtrace.googleapis.com
 ```
 
 

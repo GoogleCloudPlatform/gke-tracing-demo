@@ -17,12 +17,17 @@
 # "---------------------------------------------------------"
 # "-                                                       -"
 # "-  Helper script to generate terraform variables        -"
-# "-  file based on glcoud defaults.                       -"
+# "-  file based on gcloud defaults.                       -"
 # "-                                                       -"
 # "---------------------------------------------------------"
 
 # Stop immediately if something goes wrong
 set -euo pipefail
+
+ROOT=$(dirname "${BASH_SOURCE[0]}")/..
+
+# shellcheck disable=SC1090
+source "$ROOT/scripts/common.sh"
 
 # This script should be run from directory that contains the terraform directory.
 # The purpose is to populate defaults for subsequent terraform commands.
@@ -31,21 +36,6 @@ set -euo pipefail
 command -v git >/dev/null 2>&1 || { \
  echo >&2 "I require git but it's not installed.  Aborting."; exit 1; }
 
-# gcloud is required for this tutorial
-command -v gcloud >/dev/null 2>&1 || { \
- echo >&2 "I require gcloud but it's not installed.  Aborting."; exit 1; }
-
-
-# gcloud config holds values related to your environment. If you already
-# defined a default zone we will retrieve it and use it
-ZONE=$(gcloud config get-value compute/zone)
-if [[ -z "${ZONE}" ]]; then
-    echo "https://cloud.google.com/compute/docs/regions-zones/changing-default-zone-region" 1>&2
-    echo "gcloud cli must be configured with a default zone." 1>&2
-    echo "run 'gcloud config set compute/zone ZONE'." 1>&2
-    echo "replace 'ZONE' with the zone name like us-west1-a." 1>&2
-    exit 1;
-fi
 
 # gcloud config holds values related to your environment. If you already
 # defined a default project we will retrieve it and use it
@@ -75,7 +65,7 @@ fi
 (
 cd "${PROJECT_DIR}"
 
-TFVARS_FILE="./terraform.tfvars"
+TFVARS_FILE="./terraform/terraform.tfvars"
 
 # We don't want to overwrite a pre-existing tfvars file
 if [[ -f "${TFVARS_FILE}" ]]
@@ -92,4 +82,3 @@ zone="${ZONE}"
 EOF
 fi
 )
-
