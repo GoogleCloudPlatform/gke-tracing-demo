@@ -24,18 +24,18 @@ set -o nounset
 set -o pipefail
 
 ROOT=$(dirname "${BASH_SOURCE[0]}")/..
-source "$ROOT/scripts/common.sh"
+source "$ROOT"/scripts/common.sh
 
 # Generate the variables to be used by Terraform
-source "$ROOT/scripts/generate-tfvars.sh"
+source "$ROOT"/scripts/generate-tfvars.sh
 
 # Enable required GCP APIs
 gcloud services enable container.googleapis.com
 gcloud services enable cloudtrace.googleapis.com
 
 # Initialize and run Terraform
-(cd "$ROOT/terraform"; terraform init -input=false)
-(cd "$ROOT/terraform"; terraform apply -input=false -auto-approve)
+(cd "$ROOT"/terraform; terraform init -input=false)
+(cd "$ROOT"/terraform; terraform apply -input=false -auto-approve)
 
 # Deploy the Kubernetes resources to the created cluster
-kubectl apply -f "$ROOT/tracing-demo-deployment.yaml"
+kubectl apply --namespace default -f "$ROOT"/tracing-demo-deployment.yaml

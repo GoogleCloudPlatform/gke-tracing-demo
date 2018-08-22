@@ -26,7 +26,7 @@ set -o nounset
 set -o pipefail
 
 ROOT=$(dirname "${BASH_SOURCE[0]}")/..
-source "$ROOT/scripts/common.sh"
+source "$ROOT"/scripts/common.sh
 
 APP_MESSAGE="deployment \"$APP_NAME\" successfully rolled out"
 

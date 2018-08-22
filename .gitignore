@@ -1,7 +1,4 @@
-account.json
 __pycache__/
-venv/
-.vscode/
 terraform.tfvars
 .terraform/
 terraform/terraform.tfstate

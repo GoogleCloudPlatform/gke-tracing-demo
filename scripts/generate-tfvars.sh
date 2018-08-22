@@ -27,7 +27,7 @@ set -euo pipefail
 ROOT=$(dirname "${BASH_SOURCE[0]}")/..
 
 # shellcheck disable=SC1090
-source "$ROOT/scripts/common.sh"
+source "$ROOT"/scripts/common.sh
 
 # This script should be run from directory that contains the terraform directory.
 # The purpose is to populate defaults for subsequent terraform commands.

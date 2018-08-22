@@ -26,8 +26,8 @@ set -o nounset
 set -o pipefail
 
 ROOT=$(dirname "${BASH_SOURCE[0]}")/..
-source "$ROOT/scripts/common.sh"
+source "$ROOT"/scripts/common.sh
 
 # Tear down Terraform-managed resources and remove generated tfvars
-(cd "$ROOT/terraform"; terraform destroy -input=false -auto-approve)
-rm -f "$ROOT/terraform/terraform.tfvars"
+(cd "$ROOT"/terraform; terraform destroy -input=false -auto-approve)
+rm -f "$ROOT"/terraform/terraform.tfvars
