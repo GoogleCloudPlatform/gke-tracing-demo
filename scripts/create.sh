@@ -24,9 +24,11 @@ set -o nounset
 set -o pipefail
 
 ROOT=$(dirname "${BASH_SOURCE[0]}")/..
+# shellcheck disable=SC1090
 source "$ROOT"/scripts/common.sh
 
 # Generate the variables to be used by Terraform
+# shellcheck disable=SC1090
 source "$ROOT"/scripts/generate-tfvars.sh
 
 # Enable required GCP APIs

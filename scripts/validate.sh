@@ -26,6 +26,7 @@ set -o nounset
 set -o pipefail
 
 ROOT=$(dirname "${BASH_SOURCE[0]}")/..
+# shellcheck disable=SC1090
 source "$ROOT"/scripts/common.sh
 
 APP_MESSAGE="deployment \"$APP_NAME\" successfully rolled out"
@@ -53,7 +54,7 @@ while true
 do
   sleep 1
   EXT_IP=$(kubectl get svc "$APP_NAME" --namespace default \
-    -ojsonpath='{.status.loadBalancer.ingress[0].ip}')"
+    -ojsonpath='{.status.loadBalancer.ingress[0].ip}')
   EXT_PORT=$(kubectl --namespace default get service "$APP_NAME" \
     --namespace default -o=jsonpath='{.spec.ports[0].port}')
 

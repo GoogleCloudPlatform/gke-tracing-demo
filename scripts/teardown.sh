@@ -26,6 +26,7 @@ set -o nounset
 set -o pipefail
 
 ROOT=$(dirname "${BASH_SOURCE[0]}")/..
+# shellcheck disable=SC1090
 source "$ROOT"/scripts/common.sh
 
 # Tear down Terraform-managed resources and remove generated tfvars
