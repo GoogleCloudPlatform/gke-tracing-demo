@@ -36,7 +36,7 @@ gcloud container clusters get-credentials "$CLUSTER_NAME" --zone "$ZONE"
 # Wait for the rollout of demo app to finish
 while true
 do
-  ROLLOUT="$(kubectl rollout status --watch=false deployment/$APP_NAME)" \
+  ROLLOUT=$(kubectl rollout status --namespace default --watch=false deployment/"$APP_NAME") \
     &> /dev/null
   if [[ $ROLLOUT = *"$APP_MESSAGE"* ]]; then
     break
@@ -52,10 +52,10 @@ EXT_PORT=""
 while true
 do
   sleep 1
-  EXT_IP="$(kubectl get svc $APP_NAME \
+  EXT_IP=$(kubectl get svc "$APP_NAME" --namespace default \
     -ojsonpath='{.status.loadBalancer.ingress[0].ip}')"
-  EXT_PORT="$(kubectl --namespace default get service $APP_NAME \
-    -o=jsonpath='{.spec.ports[0].port}')"
+  EXT_PORT=$(kubectl --namespace default get service "$APP_NAME" \
+    --namespace default -o=jsonpath='{.spec.ports[0].port}')
 
   if [[ $EXT_IP =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
     break
