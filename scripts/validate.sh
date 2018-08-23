@@ -21,19 +21,19 @@
 # "-                                                       -"
 # "---------------------------------------------------------"
 
-# Do no set exit on error, since the rollout status command may fail
+# Do not set exit on error, since the rollout status command may fail
 set -o nounset
 set -o pipefail
 
-ROOT=$(dirname "${BASH_SOURCE[0]}")/..
-# shellcheck disable=SC1090
-source "$ROOT"/scripts/common.sh
+ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
+# shellcheck source=scripts/common.sh
+source "$ROOT/scripts/common.sh"
 
 APP_NAME=$(kubectl get deployments \
   -ojsonpath='{.items[0].metadata.labels.app}')
 APP_MESSAGE="deployment \"$APP_NAME\" successfully rolled out"
 
-cd "$ROOT"/terraform || exit; CLUSTER_NAME=$(terraform output cluster_name) \
+cd "$ROOT/terraform" || exit; CLUSTER_NAME=$(terraform output cluster_name) \
   ZONE=$(terraform output primary_zone)
 
 # Get credentials for the k8s cluster
@@ -73,6 +73,7 @@ do
 done
 
 echo "App is available at: http://$EXT_IP:$EXT_PORT"
+
 [ "$(curl -s -o /dev/null -w '%{http_code}' "$EXT_IP:$EXT_PORT"/)" \
   -eq 200 ] || exit 1
 echo "Step 2 of the validation passed. App handles requests."
