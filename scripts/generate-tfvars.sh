@@ -29,14 +29,6 @@ ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 # shellcheck source=scripts/common.sh
 source "$ROOT/scripts/common.sh"
 
-# This script should be run from directory that contains the terraform directory.
-# The purpose is to populate defaults for subsequent terraform commands.
-
-# git is required for this tutorial
-command -v git >/dev/null 2>&1 || { \
- echo >&2 "I require git but it's not installed.  Aborting."; exit 1; }
-
-
 # gcloud config holds values related to your environment. If you already
 # defined a default project we will retrieve it and use it
 PROJECT=$(gcloud config get-value core/project)
@@ -47,25 +39,7 @@ if [[ -z "${PROJECT}" ]]; then
     exit 1;
 fi
 
-
-# Use git to find the top-level directory and confirm
-# by looking for the 'terraform' directory
-PROJECT_DIR=$(git rev-parse --show-toplevel)
-if [[ -d "./terraform" ]]; then
-	PROJECT_DIR=$(pwd)
-fi
-if [[ -z "${PROJECT_DIR}" ]]; then
-    echo "Could not identify project base directory." 1>&2
-    echo "Please re-run from a project directory and ensure" 1>&2
-    echo "the .git directory exists." 1>&2
-    exit 1;
-fi
-
-
-(
-cd "${PROJECT_DIR}"
-
-TFVARS_FILE="./terraform/terraform.tfvars"
+TFVARS_FILE="$ROOT/terraform/terraform.tfvars"
 
 # We don't want to overwrite a pre-existing tfvars file
 if [[ -f "${TFVARS_FILE}" ]]
@@ -81,4 +55,3 @@ project="${PROJECT}"
 zone="${ZONE}"
 EOF
 fi
-)

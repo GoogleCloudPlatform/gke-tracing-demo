@@ -39,4 +39,4 @@ gcloud services enable container.googleapis.com cloudtrace.googleapis.com
 (cd "$ROOT/terraform"; terraform apply -input=false -auto-approve)
 
 # Deploy the Kubernetes resources to the created cluster
-kubectl apply --namespace default -f "$ROOT/tracing-demo-deployment.yaml"
+kubectl apply -n default -f "$ROOT/terraform/tracing-demo-deployment.yaml"
