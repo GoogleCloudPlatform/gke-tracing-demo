@@ -29,7 +29,7 @@ ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 # shellcheck source=scripts/common.sh
 source "$ROOT/scripts/common.sh"
 
-APP_NAME=$(kubectl get deployments \
+APP_NAME=$(kubectl get deployments -n default \
   -ojsonpath='{.items[0].metadata.labels.app}')
 APP_MESSAGE="deployment \"$APP_NAME\" successfully rolled out"
 
@@ -42,7 +42,7 @@ gcloud container clusters get-credentials "$CLUSTER_NAME" --zone="$ZONE"
 # Wait for the rollout of demo app to finish
 while true
 do
-  ROLLOUT=$(kubectl rollout status --namespace default \
+  ROLLOUT=$(kubectl rollout status -n default \
     --watch=false deployment/"$APP_NAME") &> /dev/null
   if [[ $ROLLOUT = *"$APP_MESSAGE"* ]]; then
     break
@@ -58,10 +58,10 @@ EXT_PORT=""
 while true
 do
   sleep 1
-  EXT_IP=$(kubectl get svc "$APP_NAME" --namespace default \
+  EXT_IP=$(kubectl get svc "$APP_NAME" -n default \
     -ojsonpath='{.status.loadBalancer.ingress[0].ip}')
-  EXT_PORT=$(kubectl --namespace default get service "$APP_NAME" \
-    --namespace default -o=jsonpath='{.spec.ports[0].port}')
+  EXT_PORT=$(kubectl get service "$APP_NAME" -n default \
+    -o=jsonpath='{.spec.ports[0].port}')
 
   if [[ $EXT_IP =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
     break
