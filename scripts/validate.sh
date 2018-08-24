@@ -40,7 +40,7 @@ cd "$ROOT/terraform" || exit; CLUSTER_NAME=$(terraform output cluster_name) \
 gcloud container clusters get-credentials "$CLUSTER_NAME" --zone="$ZONE"
 
 SUCCESSFUL_ROLLOUT=false
-for i in {1..30}
+for _ in {1..30}
 do
   ROLLOUT=$(kubectl rollout status -n default \
     --watch=false deployment/"$APP_NAME") &> /dev/null
