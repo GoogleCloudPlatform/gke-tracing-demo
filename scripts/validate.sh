@@ -40,37 +40,21 @@ cd "$ROOT/terraform" || exit; CLUSTER_NAME=$(terraform output cluster_name) \
 gcloud container clusters get-credentials "$CLUSTER_NAME" --zone="$ZONE"
 
 # Wait for the rollout of demo app to finish
-while true
-do
-  ROLLOUT=$(kubectl rollout status -n default \
-    --watch=false deployment/"$APP_NAME") &> /dev/null
-  if [[ $ROLLOUT = *"$APP_MESSAGE"* ]]; then
-    break
-  fi
-  sleep 2
-done
+ROLLOUT=$(kubectl rollout status -n default \
+  --watch=false deployment/"$APP_NAME") &> /dev/null
+if [[ ! $ROLLOUT = *"$APP_MESSAGE"* ]]; then
+  echo "ERROR - Application failed to deploy"
+  exit 1
+fi
+
 echo "Step 1 of the validation passed. App is deployed."
 
 # Grab the external IP and port of the service to confirm that demo app
 #   deployed correctly.
-EXT_IP=""
-EXT_PORT=""
-while true
-do
-  sleep 1
-  EXT_IP=$(kubectl get svc "$APP_NAME" -n default \
-    -ojsonpath='{.status.loadBalancer.ingress[0].ip}')
-  EXT_PORT=$(kubectl get service "$APP_NAME" -n default \
-    -o=jsonpath='{.spec.ports[0].port}')
-
-  if [[ $EXT_IP =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-    break
-  elif [[ $EXT_PORT =~ ^0*(?:6553[0-5]|655[0-2][0-9]|65[0-4][0-9]{2}|6[0-4][0-9]{3}|[1-5][0-9]{4}|[1-9][0-9]{1,3}|[0-9])$ ]]; then
-    break
-  else
-    continue
-  fi
-done
+EXT_IP=$(kubectl get svc "$APP_NAME" -n default \
+  -ojsonpath='{.status.loadBalancer.ingress[0].ip}')
+EXT_PORT=$(kubectl get service "$APP_NAME" -n default \
+  -o=jsonpath='{.spec.ports[0].port}')
 
 echo "App is available at: http://$EXT_IP:$EXT_PORT"
 
