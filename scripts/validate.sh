@@ -39,10 +39,20 @@ cd "$ROOT/terraform" || exit; CLUSTER_NAME=$(terraform output cluster_name) \
 # Get credentials for the k8s cluster
 gcloud container clusters get-credentials "$CLUSTER_NAME" --zone="$ZONE"
 
-# Wait for the rollout of demo app to finish
-ROLLOUT=$(kubectl rollout status -n default \
-  --watch=false deployment/"$APP_NAME") &> /dev/null
-if [[ ! $ROLLOUT = *"$APP_MESSAGE"* ]]; then
+SUCCESSFUL_ROLLOUT=false
+for i in {1..30}
+do
+  ROLLOUT=$(kubectl rollout status -n default \
+    --watch=false deployment/"$APP_NAME") &> /dev/null
+  if [[ $ROLLOUT = *"$APP_MESSAGE"* ]]; then
+    SUCCESSFUL_ROLLOUT=true
+    break
+  fi
+  sleep 2
+done
+
+if [ "$SUCCESSFUL_ROLLOUT" = false ]
+then
   echo "ERROR - Application failed to deploy"
   exit 1
 fi
@@ -60,4 +70,5 @@ echo "App is available at: http://$EXT_IP:$EXT_PORT"
 
 [ "$(curl -s -o /dev/null -w '%{http_code}' "$EXT_IP:$EXT_PORT"/)" \
   -eq 200 ] || exit 1
+
 echo "Step 2 of the validation passed. App handles requests."
