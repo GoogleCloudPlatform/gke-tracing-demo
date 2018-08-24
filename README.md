@@ -3,10 +3,10 @@
 * [Introduction](#introduction)
 * [Architecture](#architecture)
 * [Prerequisites](#prerequisites)
-  * [Enable GCP APIs](#enable-gcp-apis)
   * [Install Cloud SDK](#install-cloud-sdk)
   * [Install Terraform](#install-terraform)
   * [Configure Authentication](#configure-authentication)
+  * [Enable GCP APIs](#enable-gcp-apis)
 * [Deployment](#deployment)
   * [Introduction to Terraform](#introduction-to-terraform)
   * [Running Terraform](#running-terraform)
@@ -81,23 +81,8 @@ available in the Stackdriver Trace Console.
 ## Prerequisites
 
 The steps described in this document require the installation of several tools
-and the proper configuration of authentication to allow them to access your
+and the proper configuration of authentication and APIs to allow access your
 GCP resources.
-
-### Enable GCP APIs
-
-The following APIs need to be enabled:
-* Kubernetes Engine API
-* Stackdriver Trace API
-
-A script is provided in the /scripts folder named **enable-apis.sh** that will
-enable these three API's.  Follow these steps to execute the script:
-1. In the GCP console, change to the project you want to enable the API's for.
-2. Click on the **Activate Cloud Shell Console** Visit the **APIs & Services**
-   section of the GCP Console.
-3. Upload the **enable-apis.sh** script in the **Cloud Shell** window.
-4. Execute the script.
-
 
 ### Install Cloud SDK
 
@@ -130,6 +115,18 @@ In order to interact with GCP from your system you will need to authenticate:
 ```console
 gcloud auth application-default login
 ```
+### Enable GCP APIs
+
+The following APIs need to be enabled:
+* Kubernetes Engine API
+* Stackdriver Trace API
+
+The following commands will enable these APIs:
+
+```console
+gcloud services enable container.googleapis.com
+gcloud services enable cloudtrace.googleapis.com
+```
 
 
 ## Deployment
@@ -159,51 +156,71 @@ demo app will produce trace events that are visible in the
 
 ### Running Terraform
 
-There are three Terraform files provided with this example. The first one,
-`main.tf`, is the starting point for Terraform. It describes the features that
-will be used, the resources that will be manipulated, and the outputs that will
-result. The second file is `provider.tf`, which indicates which cloud provider
-and version will be the target of the Terraform commands--in this case GCP. The
-final file is `variables.tf`, which contains a list of variables that are used
-as inputs into Terraform. Any variables referenced in the `main.tf` that do not
-have defaults configured in `variables.tf` will result in prompts to the user
-at runtime.
+There are three Terraform files provided with this example, located in the `/terraform` subdirectory of the project. The first one, `main.tf`, is the starting point for Terraform. It describes the features that will be used, the resources that will be manipulated, and the outputs that will result. The second file is `provider.tf`, which indicates which cloud provider and version will be the target of the Terraform commands--in this case GCP. The final file is `variables.tf`, which contains a list of variables that are used as inputs into Terraform. Any variables referenced in the `main.tf` that do not have defaults configured in `variables.tf` will result in prompts to the user at runtime.
 
+#### Initialization
 Given that authentication was [configured](#configure-authentication) above, we
-are now ready to deploy the infrastructure. Run the following command to do the
-deploy:
+are now ready to deploy the infrastructure. Run the following command from the root directory of the project:
 
 ```console
-./deploy.sh
+cd terraform
 ```
 
-This script will manage the deployment by doing the following things:
+Once there, Terraform needs to be initialized. This will download the dependencies that Terraform requires to function. Enter:
+```console
+terraform init
+```
 
-1. Generate the Terraform variable values using the `generate-tfvars.sh` script
-2. Ensure Terraform is initialized using `terraform init`
-3. Deploy the Terraform resources using `terraform apply`
-4. Deploy the Kubernetes resources using
-   `kubectl apply -f ./tracing-demo-deployment.yaml`
+For this demo, Terraform needs two pieces of information in order to run: the GCP _project_ and the GCP _zone_ to which the demo application should be deployed. Terraform will prompt for these values if it does not know them already. By default, it will look for a file called `terraform.tfvars` or files with a suffix of `.auto.tfvars` in the current directory to obtain those values. This demo provides a convenience script to prompt for project and zone and persist them in a `terraform.tfvars` file. Run:
 
-You will need to enter any variables again that don't have defaults provided.
-If no errors are displayed then after a few minutes you should see your
-Kubernetes Engine cluster in the
-[GCP Console](https://console.cloud.google.com/kubernetes) with the sample
-application deployed.
+```console
+../scripts/generate-tfvars.sh
+```
 
-At this point you should find a Kubernetes cluster has been deployed to GCP and
-a Pub/Sub topic will have be been created as well a subscription to the topic.
-The final thing you should see is a Kubernetes deployment in the
-[Workload](https://console.cloud.google.com/kubernetes/workload) tab of the
-Kubernetes Engine Console
+If the file already exists you will receive an error.
 
-Once the app has been deployed, it can be viewed in the
-[Workload](https://console.cloud.google.com/kubernetes/workload) tab of the
-Kubernetes Engine Console. You can also see the load balancer that was created
-for the application in the
-[Services](https://console.cloud.google.com/kubernetes/discovery) section of
-the console.
+The script uses previously-configured values from the `gcloud` command. If they have not been configured, the error message will indicate how they should be set. The existing values can be viewed with the following command:
 
+```console
+gcloud config list
+```
+
+If the displayed values don't correspond to where you intend to run the demo application, change the values in `terraform.tfvars` to your preferred values.
+
+#### Deployment
+
+Having initialized Terraform you can see the work that Terraform will perform with the following command:
+
+```console
+terraform plan
+```
+
+This command can be used to visually verify that settings are correct and Terraform will inform you if it detects any errors. While not necessary, it is a good practice to run it every time prior to changing infrastructure using Terraform.
+
+After verification, tell Terraform to set up the necessary infrastructure:
+
+```console
+terraform apply
+```
+
+It display the changes that will be made and asks you to confirm with `yes`.
+
+After a few minutes you should find your [Kubernetes Cluster](https://console.cloud.google.com/kubernetes) and [Pub/Sub Topic and Subscription](https://console.cloud.google.com/cloudpubsub) in the GCP console.
+
+Now, deploy the demo application using Kubernetes's `kubectl` command:
+
+```console
+kubectl apply -f tracing-demo-deployment.yaml
+```
+
+Once the app has been deployed, it can be viewed in the [Workload](https://console.cloud.google.com/kubernetes/workload) tab of the Kubernetes Engine Console. You can also see the load balancer that was created for the application in the [Services](https://console.cloud.google.com/kubernetes/discovery) section of the console.
+
+Incidentally, the endpoint can be programmatically acquired using the following command:
+
+```console
+echo http://$(kubectl get svc tracing-demo -n default \
+  -ojsonpath='{.status.loadBalancer.ingress[0].ip}')
+```
 
 ## Validation
 
@@ -302,6 +319,8 @@ that were created so that you avoid accruing charges:
 ```console
 terraform destroy
 ```
+
+As with `apply`, Terraform will prompt for a `yes` to confirm your intent.
 
 Since Terraform tracks the resources it created it is able to tear down the
 cluster, the Pub/Sub topic, and the Pub/Sub subscription.

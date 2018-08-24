@@ -1,4 +1,6 @@
 account.json
 __pycache__/
-venv/
-.vscode/
+.terraform/
+terraform.tfvars
+.terraform.tfstate*
+terraform.tfstate*

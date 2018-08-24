@@ -64,3 +64,11 @@ resource "google_pubsub_subscription" "tracing-demo-subscription" {
   name  = "tracing-demo-cli"
   topic = "${google_pubsub_topic.tracing-demo-topic.name}"
 }
+
+output "cluster_name" {
+  value = "${google_container_cluster.primary.name}"
+}
+
+output "primary_zone" {
+  value = "${google_container_cluster.primary.zone}"
+}
