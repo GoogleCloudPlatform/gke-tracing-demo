@@ -40,7 +40,7 @@ cd "$ROOT/terraform" || exit; CLUSTER_NAME=$(terraform output cluster_name) \
 gcloud container clusters get-credentials "$CLUSTER_NAME" --zone="$ZONE"
 
 SUCCESSFUL_ROLLOUT=false
-for _ in {1..30}
+for _ in {1..60}
 do
   ROLLOUT=$(kubectl rollout status -n default \
     --watch=false deployment/"$APP_NAME") &> /dev/null
@@ -62,7 +62,7 @@ echo "Step 1 of the validation passed. App is deployed."
 
 # Loop for up to 60 seconds waiting for service's IP address
 EXT_IP=""
-for _ in {1..30}
+for _ in {1..60}
 do
   EXT_IP=$(kubectl get svc "$APP_NAME" -n default \
     -ojsonpath='{.status.loadBalancer.ingress[0].ip}')
@@ -82,8 +82,25 @@ EXT_PORT=$(kubectl get service "$APP_NAME" -n default \
 
 echo "App is available at: http://$EXT_IP:$EXT_PORT"
 
-# Test service availability
-[ "$(curl -s -o /dev/null -w '%{http_code}' "$EXT_IP:$EXT_PORT/")" \
-  -eq 200 ] || exit 1
+STATUS_CODE=""
+for _ in {1..60}
+do
+  # Test service availability
+  STATUS_CODE=$(curl -s -o /dev/null -w '%{http_code}' "$EXT_IP:$EXT_PORT/")
+  [ ! -z "$STATUS_CODE" ] && break
+  sleep 2
+  echo "Waiting for service availability..."
+done
+if [ -z "$STATUS_CODE" ]
+then
+  echo "ERROR - Timed out waiting for service"
+  exit 1
+fi
+
+if [ "$STATUS_CODE" != "200" ]
+then
+  echo "ERROR - Service is returning error"
+  exit 1
+fi
 
 echo "Step 2 of the validation passed. App handles requests."
