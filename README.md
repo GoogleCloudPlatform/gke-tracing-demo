@@ -342,7 +342,7 @@ cluster, the Pub/Sub topic, and the Pub/Sub subscription.
    gcloud services list --available
    ```
 
-Identify the necessary service and enable it with the above command. Keep in
+   Identify the necessary service and enable it with the above command. Keep in
 mind the
 [principle of least privilege](https://en.wikipedia.org/wiki/Principle_of_least_privilege)
 and limit access to those strictly necessary to run your applications.
