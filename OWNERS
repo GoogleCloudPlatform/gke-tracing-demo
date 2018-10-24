@@ -1,0 +1,7 @@
+approvers:
+  - chrislovecnm
+  - robinpercy
+  # TEMP REMOVE ME AFTER TESTING
+  - krzyzacy
+labels:
+  - gke-helmsman
