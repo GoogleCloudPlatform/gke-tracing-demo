@@ -25,13 +25,18 @@
 set -o nounset
 set -o pipefail
 
-ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
+# Define retry constants
+readonly MAX_COUNT=60
+readonly RETRY_COUNT=0
+readonly SLEEP=2
+
+readonly ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 # shellcheck source=scripts/common.sh
 source "$ROOT/scripts/common.sh"
 
-APP_NAME=$(kubectl get deployments -n default \
+readonly APP_NAME=$(kubectl get deployments -n default \
   -ojsonpath='{.items[0].metadata.labels.app}')
-APP_MESSAGE="deployment \"$APP_NAME\" successfully rolled out"
+readonly APP_MESSAGE="deployment \"$APP_NAME\" successfully rolled out"
 
 cd "$ROOT/terraform" || exit; CLUSTER_NAME=$(terraform output cluster_name) \
   ZONE=$(terraform output primary_zone)
@@ -60,10 +65,11 @@ fi
 
 echo "Step 1 of the validation passed. App is deployed."
 
+
 # Loop for up to 60 seconds waiting for service's IP address
-EXT_IP=""
 for _ in {1..60}
 do
+  # Get service's ip
   EXT_IP=$(kubectl get svc "$APP_NAME" -n default \
     -ojsonpath='{.status.loadBalancer.ingress[0].ip}')
   [ ! -z "$EXT_IP" ] && break
@@ -82,25 +88,33 @@ EXT_PORT=$(kubectl get service "$APP_NAME" -n default \
 
 echo "App is available at: http://$EXT_IP:$EXT_PORT"
 
-STATUS_CODE=""
-for _ in {1..60}
-do
-  # Test service availability
-  STATUS_CODE=$(curl -s -o /dev/null -w '%{http_code}' "$EXT_IP:$EXT_PORT/")
-  [ ! -z "$STATUS_CODE" ] && break
-  sleep 2
-  echo "Waiting for service availability..."
+# Curl for the service with retries
+STATUS_CODE=$(curl -s -o /dev/null -w '%{http_code}' "$EXT_IP:$EXT_PORT/")
+until [[ $STATUS_CODE -eq 200 ]]; do
+    if [[ "${RETRY_COUNT}" -gt "${MAX_COUNT}" ]]; then
+     # failed with retry, lets check whatz wrong and bail
+     echo "Retry count exceeded. Exiting..."
+     # Timed out?
+     if [ -z "$STATUS_CODE" ]
+     then
+       echo "ERROR - Timed out waiting for service"
+       exit 1
+     fi
+     # HTTP status not okay?
+     if [ "$STATUS_CODE" != "200" ]
+     then
+       echo "ERROR - Service is returning error"
+       exit 1
+     fi
+    fi
+    NUM_SECONDS="$(( RETRY_COUNT * SLEEP ))"
+    echo "Waiting for service availability..."
+    echo "service / did not return an HTTP 200 response code after ${NUM_SECONDS} seconds"
+    sleep "${SLEEP}"
+    RETRY_COUNT="$(( RETRY_COUNT + 1 ))"
+    STATUS_CODE=$(curl -s -o /dev/null -w '%{http_code}' "$EXT_IP:$EXT_PORT/")
 done
-if [ -z "$STATUS_CODE" ]
-then
-  echo "ERROR - Timed out waiting for service"
-  exit 1
-fi
 
-if [ "$STATUS_CODE" != "200" ]
-then
-  echo "ERROR - Service is returning error"
-  exit 1
-fi
-
+# succeeded, let's report it
+echo "service / returns an HTTP 200 response code"
 echo "Step 2 of the validation passed. App handles requests."
