@@ -443,5 +443,4 @@ This will deploy the collector to the well known Zipkin port `9411` and
 applications looking for it on their local port will find it indistinguishable
 from a Zipkin server but telemetry data will appear in Stackdriver Trace.
 
-
 **This is not an officially supported Google product**
