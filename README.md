@@ -436,4 +436,4 @@ applications looking for it on their local port will find it indistinguishable
 from a Zipkin server but telemetry data will appear in Stackdriver Trace.
 
 
-**This is not an officially supported Google product**
+**This Is not an officially supported Google product**
