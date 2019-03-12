@@ -1,14 +1,10 @@
 # Tracing with Stackdriver on Kubernetes Engine
 <!-- omit in toc -->
+
+  * [Tracing with Stackdriver on Kubernetes Engine ](#tracing-with-stackdriver-on-kubernetes-engine-)
   * [Introduction](#introduction)
   * [Architecture](#architecture)
-  * [Prerequisites](#prerequisites)
-     * [Run Demo in a Google Cloud Shell](#run-demo-in-a-google-cloud-shell)
-     * [Tools](#tools)
-        * [Install Cloud SDK](#install-cloud-sdk)
-        * [Install kubectl CLI](#install-kubectl-cli)
-        * [Install Terraform](#install-terraform)
-     * [Configure Authentication](#configure-authentication)
+  * [Initialize gcloud](#initialize-gcloud)
      * [Enable GCP APIs](#enable-gcp-apis)
   * [Deployment](#deployment)
      * [Introduction to Terraform](#introduction-to-terraform)
@@ -29,6 +25,7 @@
      * [Stackdriver](#stackdriver)
      * [Terraform](#terraform)
      * [Zipkin](#zipkin)
+
 <!-- omit in toc -->
 
 ## Introduction
@@ -83,50 +80,14 @@ available in the Stackdriver Trace Console.
 
 ![](images/architecture.png)
 
-## Prerequisites
+## Initialize gcloud
 
-### Run Demo in a Google Cloud Shell
-
-Click the button below to run the demo in a [Google Cloud Shell](https://cloud.google.com/shell/docs/).
-
-[![Open in Cloud Shell](http://gstatic.com/cloudssh/images/open-btn.svg)](https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https://github.com/GoogleCloudPlatform/gke-tracing-demo.git&amp;cloudshell_image=gcr.io/graphite-cloud-shell-images/terraform:latest&amp;cloudshell_tutorial=README.md)
-
-
-All the tools for the demo are installed. When using Cloud Shell execute the following
-command in order to setup gcloud cli. When executing this command please setup your region
-and zone.
+When using Cloud Shell execute the following command in order to setup gcloud cli. When executing this command please setup your region and zone.
 
 ```console
 gcloud init
 ```
 
-### Tools
-1. [Terraform >= 0.11.7](https://www.terraform.io/downloads.html)
-2. [Google Cloud SDK version >= 204.0.0](https://cloud.google.com/sdk/docs/downloads-versioned-archives)
-3. [kubectl matching the latest GKE version](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
-
-#### Install Cloud SDK
-The Google Cloud SDK is used to interact with your GCP resources.
-[Installation instructions](https://cloud.google.com/sdk/downloads) for multiple platforms are available online.
-
-#### Install kubectl CLI
-
-The kubectl CLI is used to interteract with both Kubernetes Engine and kubernetes in general.
-[Installation instructions](https://cloud.google.com/kubernetes-engine/docs/quickstart)
-for multiple platforms are available online.
-
-#### Install Terraform
-
-Terraform is used to automate the manipulation of cloud infrastructure. Its
-[installation instructions](https://www.terraform.io/intro/getting-started/install.html) are also available online.
-
-### Configure Authentication
-
-In order to interact with GCP from your system you will need to authenticate:
-
-```console
-gcloud auth application-default login
-```
 ### Enable GCP APIs
 
 The following APIs need to be enabled:
@@ -139,7 +100,6 @@ The following commands will enable these APIs:
 gcloud services enable container.googleapis.com
 gcloud services enable cloudtrace.googleapis.com
 ```
-
 
 ## Deployment
 
