@@ -191,7 +191,7 @@ Once the app has been deployed, it can be viewed in the [Workload](https://conso
 Incidentally, the endpoint can be programmatically acquired using the following command:
 
 ```console
-echo http://$(kubectl get svc tracing-demo -n default -ojsonpath='{.status.loadBalancer.ingress[0].ip}')
+echo "http://$(kubectl get svc tracing-demo -n default -ojsonpath='{.status.loadBalancer.ingress[0].ip}')"
 ```
 
 ## Validation
