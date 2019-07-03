@@ -1,6 +1,7 @@
 approvers:
   - chrislovecnm
   - robinpercy
+  - bgeesaman
   # TEMP REMOVE ME AFTER TESTING
   - krzyzacy
 labels:
