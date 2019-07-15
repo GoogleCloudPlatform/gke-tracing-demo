@@ -14,13 +14,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-
 variable "zone" {
   description = "The zone in which to create the Kubernetes cluster. Must match the region"
-  type        = "string"
+  type        = string
 }
 
 variable "project" {
   description = "the project for this network"
-  type        = "string"
+  type        = string
 }
+
