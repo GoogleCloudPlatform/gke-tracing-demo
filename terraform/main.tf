@@ -14,12 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-
 // Provides access to available Google Container Engine versions in a zone for a given project.
 // https://www.terraform.io/docs/providers/google/d/google_container_engine_versions.html
 data "google_container_engine_versions" "on-prem" {
-  zone    = "${var.zone}"
-  project = "${var.project}"
+  zone    = var.zone
+  project = var.project
 }
 
 // https://www.terraform.io/docs/providers/google/d/google_container_cluster.html
@@ -28,9 +27,9 @@ data "google_container_engine_versions" "on-prem" {
 // Create the GKE Cluster
 resource "google_container_cluster" "primary" {
   name               = "tracing-demo-space"
-  zone               = "${var.zone}"
+  zone               = var.zone
   initial_node_count = 1
-  min_master_version = "${data.google_container_engine_versions.on-prem.latest_master_version}"
+  min_master_version = data.google_container_engine_versions.on-prem.latest_master_version
 
   // Scopes were a pre-IAM method of giving instances API access
   // They are still around we need to give our cluster nodes
@@ -48,6 +47,8 @@ resource "google_container_cluster" "primary" {
 
   // Here we use gcloud to gather authentication information about our new cluster and write that
   // information to kubectls config file
+  // Here we use gcloud to gather authentication information about our new cluster and write that
+  // information to kubectls config file
   provisioner "local-exec" {
     command = "gcloud container clusters get-credentials ${google_container_cluster.primary.name} --zone ${google_container_cluster.primary.zone} --project ${var.project}"
   }
@@ -62,13 +63,14 @@ resource "google_pubsub_topic" "tracing-demo-topic" {
 // You need a subscription to pull messages from a topic
 resource "google_pubsub_subscription" "tracing-demo-subscription" {
   name  = "tracing-demo-cli"
-  topic = "${google_pubsub_topic.tracing-demo-topic.name}"
+  topic = google_pubsub_topic.tracing-demo-topic.name
 }
 
 output "cluster_name" {
-  value = "${google_container_cluster.primary.name}"
+  value = google_container_cluster.primary.name
 }
 
 output "primary_zone" {
-  value = "${google_container_cluster.primary.zone}"
+  value = google_container_cluster.primary.zone
 }
+
