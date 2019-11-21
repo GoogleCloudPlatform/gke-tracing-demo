@@ -17,7 +17,7 @@ limitations under the License.
 // Provides access to available Google Container Engine versions in a zone for a given project.
 // https://www.terraform.io/docs/providers/google/d/google_container_engine_versions.html
 data "google_container_engine_versions" "on-prem" {
-  zone    = var.zone
+  location = var.zone
   project = var.project
 }
 
@@ -27,7 +27,7 @@ data "google_container_engine_versions" "on-prem" {
 // Create the GKE Cluster
 resource "google_container_cluster" "primary" {
   name               = "tracing-demo-space"
-  zone               = var.zone
+  location           = var.zone
   initial_node_count = 1
   min_master_version = data.google_container_engine_versions.on-prem.latest_master_version
 
@@ -50,7 +50,7 @@ resource "google_container_cluster" "primary" {
   // Here we use gcloud to gather authentication information about our new cluster and write that
   // information to kubectls config file
   provisioner "local-exec" {
-    command = "gcloud container clusters get-credentials ${google_container_cluster.primary.name} --zone ${google_container_cluster.primary.zone} --project ${var.project}"
+    command = "gcloud container clusters get-credentials ${google_container_cluster.primary.name} --zone ${google_container_cluster.primary.location} --project ${var.project}"
   }
 }
 
@@ -71,6 +71,5 @@ output "cluster_name" {
 }
 
 output "primary_zone" {
-  value = google_container_cluster.primary.zone
+  value = google_container_cluster.primary.location
 }
-
