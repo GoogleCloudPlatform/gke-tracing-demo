@@ -17,6 +17,6 @@ limitations under the License.
 // Identifies allowable version range for Terraform Google Provider
 provider "google" {
   project = var.project
-  version = "~> 2.10.0"
+  version = "~> 3.3.0"
 }
 
