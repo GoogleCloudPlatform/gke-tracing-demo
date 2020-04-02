@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM python:3.8.0b1-stretch
+FROM python:3.8.2-buster
 
 RUN apt-get update \
  && apt-get clean \

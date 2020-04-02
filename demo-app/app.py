@@ -20,11 +20,12 @@ from google.cloud import pubsub_v1
 from flask import Flask, render_template, request
 
 from opencensus.trace import execution_context
-from opencensus.trace.exporters import stackdriver_exporter
-from opencensus.trace.exporters.transports import background_thread
-from opencensus.trace.ext.flask.flask_middleware import FlaskMiddleware
+from opencensus.common.transports.async_ import AsyncTransport
+from opencensus.ext.stackdriver import trace_exporter as stackdriver_exporter
+from opencensus.ext.flask.flask_middleware import FlaskMiddleware
 from opencensus.trace.propagation import google_cloud_format
-from opencensus.trace.samplers import always_on
+from opencensus.trace import samplers
+
 
 app = Flask(__name__)
 
@@ -32,9 +33,10 @@ topic_name = 'tracing-demo'
 
 # Configure Tracing
 exporter = stackdriver_exporter.StackdriverExporter(
-    transport=background_thread.BackgroundThreadTransport)
+    transport=AsyncTransport)
+
 propagator = google_cloud_format.GoogleCloudFormatPropagator()
-sampler = always_on.AlwaysOnSampler()
+sampler = samplers.AlwaysOnSampler()
 blacklist_paths = ['favicon.ico']
 
 # Instrument Flask to do tracing automatically

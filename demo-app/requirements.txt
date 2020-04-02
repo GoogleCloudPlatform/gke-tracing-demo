@@ -1,6 +1,7 @@
 google-cloud-monitoring==0.31.1
 google-cloud-pubsub==0.42.1
 google-cloud-trace==0.21.0
-gunicorn==19.9.0
-opencensus==0.6.0
+gunicorn==20.0.4
+opencensus-ext-stackdriver==0.7.2
+opencensus-ext-flask==0.7.3
 Flask==1.1.1
