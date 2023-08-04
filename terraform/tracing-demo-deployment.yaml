@@ -30,7 +30,7 @@ spec:
     spec:
       containers:
       - name: tracing-demo-container
-        image: gcr.io/pso-examples/tracing-demo:1.0.0
+        image: gcr.io/qwiklabs-resources/tracing-demo:1.0.0
         ports:
         - containerPort: 8080
 ---
