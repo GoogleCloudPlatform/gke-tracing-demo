@@ -1,4 +1,4 @@
-google-cloud-monitoring==0.31.1
+google-cloud-monitoring==0.36.2
 google-cloud-pubsub==0.42.1
 google-cloud-trace==0.21.0
 gunicorn==19.9.0
