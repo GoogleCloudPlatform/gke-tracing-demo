@@ -1,6 +1,6 @@
 google-cloud-monitoring==0.31.1
 google-cloud-pubsub==0.42.1
 google-cloud-trace==0.21.0
-gunicorn==19.9.0
+gunicorn==22.0.0
 opencensus==0.6.0
 Flask==1.1.1
